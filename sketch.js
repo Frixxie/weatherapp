@@ -29,6 +29,7 @@ function meta_data() {
 
 
 function draw() {
+    let lo, mi, hi;
     meta_data();
     noStroke();
     fill(36, 36, 36);
@@ -47,6 +48,9 @@ function draw() {
     text('Temperature', 471, 60);
     text('Temperature Last 7 days', 431, 40);
     for (let i = Number(table.getRowCount()) - 1008, j = 30; i < table.getRowCount() - l; i++, j++) {
+        lo = Number(800 - table.get(i, 9))
+        mi = Number(800 - table.get(i, 11))
+        ji = Number(800 - table.get(i, 10))
         stroke(0);
         line(j, Number(800 - table.get(i,11) * y_ratio), j + 1, Number(800 - table.get(i+1,11) * y_ratio));
         stroke(0, 0, 255);
