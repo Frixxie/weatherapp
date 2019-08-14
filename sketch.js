@@ -1,6 +1,5 @@
 let table;
 let y_ratio = 25;
-let l = 1008;
 let mapimg;
 let index = 1;
 
@@ -22,20 +21,15 @@ function meta_data() {
     let temp = table.getString(row - 1, 11);
     let desc = table.getString(row - 1, 3);
     background(100, 155, 100); 
-    text('Current information:', 1160, 130);
+    text('Information:', 1160, 130);
     text('Location: ' + loc, 1160, 150);
-    text('Temperature: ' + temp, 1160, 170);
-    text('Description: ' + desc, 1160, 190);
+    text('Description: ' + desc, 1160, 170);
+    text('Temperature: ' + temp, 1160, 190);
+    text('Min temperature ' + table.getString(row - 1, 9), 1160, 210); 
+    text('Max temperature ' + table.getString(row - 1, 10), 1160, 230); 
 }
 
-
-function draw() {
-    let lo = 1000, mi = 0, hi = 0;
-    noStroke();
-    meta_data();
-    fill(36, 36, 36);
-    rect(0, 0, 1068, 800);
-
+function graph_info() {
     fill(255, 0, 0);
     rect(556, 50, 10, 10);
     fill(255);
@@ -57,18 +51,30 @@ function draw() {
     text('Alltime mintemp', 361, 80);
 
     fill(0);
-    rect(456, 50, 10, 10);
+    rect(460, 50, 10, 10);
     fill(255);
     text('Temperature', 471, 60);
 
     fill(255, 255, 0);
-    rect(456, 70, 10, 10);
+    rect(460, 70, 10, 10);
     fill(255);
     text('Mean temp', 471, 80);
 
-    text('Temperature Last 7 days', 431, 40);
+    text('Temperature Last 3.5 days', 431, 40);
+}
 
-    for (let i = Number(table.getRowCount()) - 1008, j = 30; i < table.getRowCount() - l; i++, j++) {
+
+function draw() {
+    let lo = 1000, mi = 0, hi = 0;
+    noStroke();
+        
+    meta_data();
+
+    fill(36, 36, 36);
+    rect(0, 0, 1068, 800);  
+    
+    graph_info();    
+    for (let i = Number(table.getRowCount()) - 1009, j = 30; i < table.getRowCount() - 1; i++, j++) {
         if (lo > Number(table.get(i, 9))) {
             lo = Number(table.get(i, 9)); 
         }
@@ -91,32 +97,36 @@ function draw() {
         stroke(255, 125, 125);
         line(j,Number(800 - hi * y_ratio),j+1,Number(800 - hi * y_ratio));
         
-        fill(100,155,100);
-        noStroke();
-        rect(1160, 230, 240, 190);
-
-        stroke(255);
-        fill(255);
-        text('Information:', 1160, 250);
-        text('Location: ' + table.getString(i,1), 1160, 270);
-        text('Description: ' + table.getString(i,3), 1160, 290);
-        text('Temperature: ' + table.getString(i,11), 1160, 310);
-        text('Mean temp: ' + mi/index, 1160, 330);
-        text('Min temperature: ' + table.getString(i,9), 1160, 350);
-        text('Max temperature: ' + table.getString(i,10), 1160, 370);
-        text('Alltime maxtemp: ' + hi, 1160, 390);
-        text('Alltime lowtemp: ' + lo, 1160, 410);
-
         index++;
     }
+
+    let options = { day: '2-digit', weekday: 'narrow', year: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }
+
+    for (let i = 0; i < 1008; i++) {
+        if (i % 100 == 0) {
+            stroke(0);
+            line(i + 30, 100, i + 30, 700);
+            let row = Number(table.getRowCount());
+            let timestamp = Number(table.get(row - i - 1, 0) * 1000);
+            let date = new Date(timestamp);
+            let hours = date.getHours();
+            let min = "0" + date.getMinutes();
+            let sec = "0" + date.getSeconds();
+            let weekday = date.toDateString();
+            let time = hours + ':' + min.substr(-2) + ':' + sec.substr(-2); 
+            text(weekday, i + 30, 720);
+            text(time, i + 30, 740);
+        }
+    }
+    
+    noStroke();
+    fill(255);
+    text('Mean temp: ' + mi/index, 1160, 250);
+    text('Alltime maxtemp: ' + hi, 1160, 270);
+    text('Alltime lowtemp: ' + lo, 1160, 290);
     mi = 0;
-    l--;
     index = 1;
 
-    if (l == 0) {
-        l = 1008;
-        lo = 0, mi = 0, hi = 0;
-    }
 	image(mapimg, 1068, 500);
 }
 
