@@ -114,8 +114,8 @@ function draw() {
             let sec = "0" + date.getSeconds();
             let weekday = date.toDateString();
             let time = hours + ':' + min.substr(-2) + ':' + sec.substr(-2); 
-            text(weekday, i + 30, 720);
-            text(time, i + 30, 740);
+            text(weekday, 1008 - i + 22, 720);
+            text(time, 1008 - i + 22, 740);
         }
     }
     
