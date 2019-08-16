@@ -2,6 +2,7 @@ let table;
 let y_ratio = 25;
 let mapimg;
 let index = 1;
+let intervall = 600;
 
 function preload() {
     table = loadTable('log.csv', 'csv', 'header');
@@ -63,9 +64,16 @@ function graph_info() {
     text('Temperature Last 3.5 days', 431, 40);
 }
 
+function check_time(i) {
+    let diff = Number(table.get(i + 1, 0)) - Number(table.get(i, 0));
+    if (diff > intervall) {
+       return diff % intervall;
+    }
+    return 0;
+}
 
 function draw() {
-    let lo = 1000, mi = 0, hi = 0;
+    let lo = 1000, mi = 0, hi = 0, lim = 0;
     noStroke();
         
     meta_data();
@@ -74,33 +82,36 @@ function draw() {
     rect(0, 0, 1068, 800);  
     
     graph_info();    
-    for (let i = Number(table.getRowCount()) - 1009, j = 30; i < table.getRowCount() - 1; i++, j++) {
+    for (let i = Number(table.getRowCount()) - 1009, j = 30; i < table.getRowCount() - 1 - lim; i++, j++) {
+        let diff = check_time(i);
+        console.log(diff);
         if (lo > Number(table.get(i, 9))) {
             lo = Number(table.get(i, 9)); 
         }
-        if (Number(table.get(i, 11)) != 0) {
+        if (Number(table.get(i, 11))) {
             mi += Number(table.get(i, 11));
         }
         if (hi < Number(table.get(i, 10))) {
             hi = Number(table.get(i, 10)); 
         }
         stroke(0);
-        line(j, Number(800 - table.get(i,11) * y_ratio), j + 1, Number(800 - table.get(i+1,11) * y_ratio));
+        line(j, Number(800 - table.get(i,11) * y_ratio), j + 1 + diff, Number(800 - table.get(i+1,11) * y_ratio));
         stroke(255, 255, 0);
-        line(j,Number(800 - mi/index * y_ratio),j+1,Number(800 - mi/index * y_ratio));
+        line(j,Number(800 - mi/index * y_ratio), j + 1 + diff,Number(800 - mi/index * y_ratio));
         stroke(0, 0, 255);
-        line(j, Number(800 - table.get(i,9) * y_ratio), j + 1, Number(800 - table.get(i+1,9) * y_ratio));
+        line(j, Number(800 - table.get(i,9) * y_ratio), j + 1 + diff, Number(800 - table.get(i+1,9) * y_ratio));
         stroke(0, 100, 255);
-        line(j,Number(800 - lo * y_ratio),j+1,Number(800 - lo * y_ratio));
+        line(j,Number(800 - lo * y_ratio), j + 1 + diff,Number(800 - lo * y_ratio));
         stroke(255, 0, 0);
-        line(j, Number(800 - table.get(i,10) * y_ratio), j + 1, Number(800 - table.get(i+1,10) * y_ratio));
+        line(j, Number(800 - table.get(i,10) * y_ratio), j + 1 + diff, Number(800 - table.get(i+1,10) * y_ratio));
         stroke(255, 125, 125);
-        line(j,Number(800 - hi * y_ratio),j+1,Number(800 - hi * y_ratio));
-        
+        line(j,Number(800 - hi * y_ratio), j + 1 + diff,Number(800 - hi * y_ratio));
+        j += diff;
         index++;
+        lim += diff;
     }
+    console.log(table.getRowCount() - 1, table.getRowCount() - 1 - lim, lim);
 
-    let options = { day: '2-digit', weekday: 'narrow', year: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }
 
     for (let i = 0; i < 1008; i++) {
         if (i % 100 == 0) {
